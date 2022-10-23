@@ -1,0 +1,99 @@
+def search_node_by_key(root, key) -> list:
+    if root is None:
+        return None
+
+    prev_parent = None
+    node = root
+
+    while node is not None:
+        parent = node
+        if key > parent.value:
+            node = parent.right
+            prev_parent = parent
+        elif key < parent.value:
+            node = parent.left
+            prev_parent = parent
+        else:
+            if key == node.value:
+                return [node, prev_parent]
+            else:
+                return None
+
+
+def search_max_node_from_left(root):
+    node = root.left
+    parent = root
+    while node.right is not None:
+        parent = node
+        node = node.right
+
+    if parent.right == node:
+        parent.right = None
+    return node
+
+
+def search_min_node_from_right(root):
+    node = root.right
+    parent = root
+    while node.left is not None:
+        parent = node
+        node = node.left
+
+    if parent.right == node:
+        parent.right = None
+    parent.left = None
+
+    return node
+
+
+def remove(root, key):
+    node_list = search_node_by_key(root, key)
+
+    if node_list is None:
+        return root
+
+    node = node_list[0]
+    parent = node_list[1]
+
+    # parents exists
+    if parent is not None:
+        if node.left is not None:
+            max_node_from_left = search_max_node_from_left(node)
+            #max_node_from_left.left = node.left
+            max_node_from_left.right = node.right
+            if parent.value <= key:
+                parent.right = max_node_from_left
+            elif parent.value >= key:
+                parent.left = max_node_from_left
+        elif node.right is not None:
+            min_node_from_right = search_min_node_from_right(node)
+            #min_node_from_right.left = node.left
+            if min_node_from_right == node.right:
+                parent.right = min_node_from_right
+            else:
+                min_node_from_right.right = node.right
+            if parent.value <= key:
+                parent.right = min_node_from_right
+            elif parent.value >= key:
+                parent.left = min_node_from_right
+        else:
+            if parent.value <= key:
+                parent.right = None
+            elif parent.value >= key:
+                parent.left = None
+    # no parents
+    else:
+        if node.left is not None:
+            max_node_from_left = search_max_node_from_left(node)
+            max_node_from_left.left = node.left
+            max_node_from_left.right = node.right
+            root = max_node_from_left
+        elif node.right is not None:
+            min_node_from_right = search_min_node_from_right(node)
+            min_node_from_right.left = node.left
+            min_node_from_right.right = node.right
+            root = min_node_from_right
+        else:
+            root = None
+    #print(root)
+    return root
